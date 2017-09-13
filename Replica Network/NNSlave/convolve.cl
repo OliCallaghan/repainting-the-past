@@ -31,26 +31,24 @@ kernel void convolve(global float* d_in,
     // Output pixel position
     size_t loc_x = get_global_id(0);
     size_t loc_y = get_global_id(1);
-    // NOTE TO SELF YOU CAN HAVE 3D WORK GROUP 3RD DIMENSION FOR KERNEL N
+    size_t loc_d = get_global_id(2);
     
     int m; // Kernel position X
     int n; // Kernel position Y
     int c; // Kernel channel number
-    int d; // Kernel number
     
-    for (d = 0; d < k_n; d++) {
-        float accum = 0;
-        for (c = 0; c < k_channels; c++) {
-            for (n = 0; n < k_y; n++) {
-                for (m = 0; m < k_x; m++) {
-                    accum += d_in[MAP_3D(loc_x + m, loc_y + n,c,d_x,d_y)] * k_d[MAP_4D(m,n,c,d,k_x,k_y,k_channels)];
-                    //accum = k_d[MAP_4D(m,n,c,d,k_x,k_y,k_channels)] * k_d[MAP_4D(m,n,c,d,k_x,k_y,k_channels)];
-                }
+    float accum = 0;
+    for (c = 0; c < k_channels; c++) {
+        for (n = 0; n < k_y; n++) {
+            for (m = 0; m < k_x; m++) {
+                accum += d_in[MAP_3D(loc_x + m, loc_y + n,c,d_x,d_y)] * k_d[MAP_4D(m,n,c,loc_d,k_x,k_y,k_channels)];
+                //accum = k_d[MAP_4D(m,n,c,d,k_x,k_y,k_channels)] * k_d[MAP_4D(m,n,c,d,k_x,k_y,k_channels)];
             }
         }
-        //d_out[MAP_3D(loc_x,loc_y,d,d_o_x,d_o_y)] = fmax((float)0,accum); // fmax() is ReLu layer
-        d_out[MAP_3D(loc_x,loc_y,d,d_o_x,d_o_y)] = accum; // no ReLu layer
     }
+    //d_out[MAP_3D(loc_x,loc_y,d,d_o_x,d_o_y)] = fmax((float)0,accum); // fmax() is ReLu layer
+    d_out[MAP_3D(loc_x,loc_y,loc_d,d_o_x,d_o_y)] = accum; // no ReLu layerd
+    d_out[0] = 1; // no ReLu layerd
 }
 
 // ReLu Layer

@@ -80,8 +80,8 @@ kernel void calcPrevLayerDeltas(global float* err_deltas,
     
     float accum = 0;
     
-    while ((m >= 0) && ((m < k_y) || (m <= loc_y))) {
-        while ((p>=0) && ((p < k_x) || (p <= loc_x))) {
+    while ((m >= 0) && ((m < k_y) && (m <= loc_y))) {
+        while ((p>=0) && ((p < k_x) && (p <= loc_x))) {
             for (q = 0; q < k_n; q++) {
                 accum += k_d[MAP_4D(p,m,loc_channel,q,k_x,k_y,k_channels)] * err_deltas[MAP_3D(loc_x-p,loc_y-m,q,err_x,err_y)];
             }

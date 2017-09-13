@@ -86,10 +86,10 @@ frame conv_layer::forward(dispatch_queue_t* queue, frame frame_in) {
         gcl_get_kernel_block_workgroup_info(convolve_kernel, CL_KERNEL_WORK_GROUP_SIZE, sizeof(wgs), &wgs, NULL);
         wgs = 1;
         cl_ndrange range_conv = {
-            2,
+            3,
             {0,0,0},
-            {(frame_in.width - this->k_x) + 1,frame_in.height - this->k_y + 1,0},
-            {wgs,wgs,0}
+            {(frame_in.width - this->k_x) + 1,frame_in.height - this->k_y + 1,static_cast<size_t>(this->kernel_n)},
+            {wgs,wgs,wgs}
         };
         
         // Run convolve kernel
@@ -112,9 +112,9 @@ frame conv_layer::forward(dispatch_queue_t* queue, frame frame_in) {
         gcl_memcpy(frame_out_d, mem_out, frame_out_mem_size);
     });
     
-    /*for (int loc = 0; loc < frame_out_mem_size / sizeof(cl_float); loc++) {
-        // std::cout << frame_out_d[loc] << " ";
-    }*/
+    for (int loc = 0; loc < 50; loc++) {
+        //std::cout << frame_out_d[loc] << " ";
+    }
     
     gcl_free(mem_in);
     gcl_free(mem_out);
@@ -123,9 +123,7 @@ frame conv_layer::forward(dispatch_queue_t* queue, frame frame_in) {
     return out;
 }
 
-void conv_layer::backwards(dispatch_queue_t* queue, frame err_delta, frame lay_input) {
-    
-    
+void conv_layer::backwards(dispatch_queue_t* queue, frame err_delta, frame lay_input, float learning_rate) {
     int err_delta_size = sizeof(cl_float) * err_delta.width * err_delta.height * err_delta.channels;
     int lay_input_size = sizeof(cl_float) * lay_input.width * lay_input.height * lay_input.channels;
     int weight_delta_size = sizeof(cl_float) * this->kernel_n * this->k_x * this->k_y * this->k_channels;
@@ -177,7 +175,7 @@ void conv_layer::backwards(dispatch_queue_t* queue, frame err_delta, frame lay_i
     
     // Update Kernel Data
     for (int loc = 0; loc < weight_delta_size / sizeof(cl_float); loc++) {
-        this->k_d[loc] += weight_delta.data[loc] * powf(10.0, -10.0);
+        this->k_d[loc] += weight_delta.data[loc] * learning_rate;
     }
     
     free(weight_delta.data);
@@ -307,6 +305,10 @@ frame conv_layer::calcPrevDelta(dispatch_queue_t* queue, frame prev_delta) {
     gcl_free(prev_delta_gpu);
     gcl_free(k_d_gpu);
     gcl_free(delta_gpu);
+    
+    /*for (int loc = 0; loc < 50; loc++) {
+        std::cout << deltamap.data[loc] << " ";
+    }*/
     
     return deltamap;
 }

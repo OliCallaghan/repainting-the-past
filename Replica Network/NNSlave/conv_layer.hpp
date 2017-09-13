@@ -59,7 +59,7 @@ public:
     frame forward(dispatch_queue_t* queue, frame frame_in);
     frame calcDelta(dispatch_queue_t* queue, frame output_frame, frame target_frame);
     frame calcPrevDelta(dispatch_queue_t* queue, frame prev_delta);
-    void backwards(dispatch_queue_t* queue, frame err_delta, frame lay_input);
+    void backwards(dispatch_queue_t* queue, frame err_delta, frame lay_input, float learning_rate);
 };
 
 #endif /* conv_layer_hpp */

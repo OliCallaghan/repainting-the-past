@@ -9,6 +9,7 @@
 #include <iostream>
 #include <OpenCL/opencl.h>
 #include <ctime>
+#include <math.h>
 
 #include "conv_layer.hpp"
 #include "frame_helper.hpp"
@@ -27,7 +28,7 @@ void getDispatchQueue(dispatch_queue_t* queue) {
     clGetDeviceIDs(NULL,CL_DEVICE_TYPE_GPU,num,devices,NULL);
     
     // Attempt to use GPU
-    *queue = gcl_create_dispatch_queue(CL_DEVICE_TYPE_GPU, devices[num - 1]);
+    *queue = gcl_create_dispatch_queue(CL_DEVICE_TYPE_GPU, devices[1]);
     // Fallback on CPU
     if (*queue == NULL) {
         *queue = gcl_create_dispatch_queue(CL_DEVICE_TYPE_CPU, NULL);
@@ -45,13 +46,13 @@ void learn(dispatch_queue_t* queue, conv_layer** layers, frame frame_in, frame f
     featuremaps[0] = frame_in;
     for (int rpt = 0; rpt < 3600; rpt++) {
         for (int layer = 0; layer < l_n; layer++) {
-            featuremaps[layer + 1] = layers[layer]->forward(queue, frame_in);
+            featuremaps[layer + 1] = layers[layer]->forward(queue, featuremaps[layer]);
         }
         
         err_deltamaps[l_n - 1] = layers[l_n]->calcDelta(queue, featuremaps[l_n], frame_comp);
         
         for (int layer = l_n - 1; layer >= 0; layer--) {
-            layers[layer]->backwards(queue, err_deltamaps[layer], featuremaps[layer]);
+            layers[layer]->backwards(queue, err_deltamaps[layer], featuremaps[layer], powf(10.0, -10.0));
             if (layer == 0) { break; }
             err_deltamaps[layer - 1] = layers[layer]->calcPrevDelta(queue, err_deltamaps[layer]);
         }
@@ -159,10 +160,13 @@ int main(int argc, const char * argv[]) {
     // Cleans up combined LAB data (unnecessary)
     free(frame_in.data);
     
+    
+    // Constructor
+    // conv_layer(int k_n, int k_x, int k_y, int k_channels);
     conv_layer* layers[3];
-    conv_layer conv1_1(2,12,12,1);
-    conv_layer conv1_2(2,12,12,2);
-    conv_layer conv1_3(2,12,12,2);
+    conv_layer conv1_1(16,7,7,1);
+    conv_layer conv1_2(4,7,7,16);
+    conv_layer conv1_3(2,5,5,4);
     layers[0] = &conv1_1;
     layers[1] = &conv1_2;
     layers[2] = &conv1_3;
