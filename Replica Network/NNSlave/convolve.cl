@@ -47,8 +47,7 @@ kernel void convolve(global float* d_in,
         }
     }
     //d_out[MAP_3D(loc_x,loc_y,d,d_o_x,d_o_y)] = fmax((float)0,accum); // fmax() is ReLu layer
-    d_out[MAP_3D(loc_x,loc_y,loc_d,d_o_x,d_o_y)] = accum; // no ReLu layerd
-    d_out[0] = 1; // no ReLu layerd
+    d_out[MAP_3D(loc_x,loc_y,loc_d,d_o_x,d_o_y)] = accum; // no ReLu layer
 }
 
 // ReLu Layer
