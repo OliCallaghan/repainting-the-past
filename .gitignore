@@ -57,3 +57,6 @@ typings/
 # dotenv environment variables file
 .env
 
+Replica\ Network\ Py/bin
+Replica\ Network\ Py/resources
+Replica\ Network\ Py/tran_dir

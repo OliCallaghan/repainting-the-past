@@ -164,8 +164,8 @@ int main(int argc, const char * argv[]) {
     // Constructor
     // conv_layer(int k_n, int k_x, int k_y, int k_channels);
     conv_layer* layers[3];
-    conv_layer conv1_1(16,7,7,1);
-    conv_layer conv1_2(4,7,7,16);
+    conv_layer conv1_1(32,7,7,1);
+    conv_layer conv1_2(4,7,7,32);
     conv_layer conv1_3(2,5,5,4);
     layers[0] = &conv1_1;
     layers[1] = &conv1_2;

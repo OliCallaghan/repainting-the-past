@@ -10,13 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NNSlave/main.cpp"
-            timestampString = "527019954.647469"
+            timestampString = "527088237.570407"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "112"
-            endingLineNumber = "112"
-            landmarkName = "main(int argc, const char * argv[])"
-            landmarkType = "9">
+            startingLineNumber = "88"
+            endingLineNumber = "88">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -90,11 +88,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NNSlave/conv_layer.cpp"
-            timestampString = "527012274.160345"
+            timestampString = "527102362.967618"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "141"
-            endingLineNumber = "141"
+            startingLineNumber = "162"
+            endingLineNumber = "162"
             landmarkName = "conv_layer::backwards(dispatch_queue_t* queue, frame err_delta, frame lay_input, float learning_rate)"
             landmarkType = "7">
             <Locations>
@@ -138,11 +136,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NNSlave/conv_layer.cpp"
-            timestampString = "527012004.969382"
+            timestampString = "527101469.277303"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "81"
-            endingLineNumber = "81"
+            startingLineNumber = "84"
+            endingLineNumber = "84"
             landmarkName = "conv_layer::forward(dispatch_queue_t* queue, frame frame_in)"
             landmarkType = "7">
          </BreakpointContent>
@@ -154,12 +152,26 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NNSlave/conv_layer.cpp"
-            timestampString = "527016745.266019"
+            timestampString = "527102362.967618"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "312"
-            endingLineNumber = "312"
-            landmarkName = "conv_layer::calcPrevDelta(dispatch_queue_t* queue, frame prev_delta)"
+            startingLineNumber = "333"
+            endingLineNumber = "333">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NNSlave/conv_layer.cpp"
+            timestampString = "527102362.967618"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "139"
+            endingLineNumber = "139"
+            landmarkName = "conv_layer::backwards(dispatch_queue_t* queue, frame err_delta, frame lay_input, float learning_rate)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -170,11 +182,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NNSlave/conv_layer.cpp"
-            timestampString = "527019462.122264"
+            timestampString = "527102362.967618"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "118"
-            endingLineNumber = "118"
+            startingLineNumber = "133"
+            endingLineNumber = "133"
+            landmarkName = "conv_layer::backwards(dispatch_queue_t* queue, frame err_delta, frame lay_input, float learning_rate)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NNSlave/conv_layer.cpp"
+            timestampString = "527169884.348277"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "74"
+            endingLineNumber = "74"
             landmarkName = "conv_layer::forward(dispatch_queue_t* queue, frame frame_in)"
             landmarkType = "7">
          </BreakpointContent>
