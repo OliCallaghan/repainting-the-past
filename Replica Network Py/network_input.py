@@ -6,8 +6,8 @@ from skimage import color
 
 data_dir = "./bin"
 
-f_in_x = 640
-f_in_y = 480
+f_in_x = 224
+f_in_y = 224
 
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
@@ -22,8 +22,8 @@ def read_frame(filename_queue):
         pass
 
     frame = Frame()
-    frame.height = 480
-    frame.width = 640
+    frame.height = 224
+    frame.width = 224
     frame.AB_bins = [22, 22]
 
     image_reader = tf.WholeFileReader()
@@ -40,8 +40,9 @@ def read_frame(filename_queue):
     # Extract AB channels
     frame.AB_channels = tf.image.resize_images(tf.slice(
         lab_data, [0, 0, 1], [frame.height, frame.width, 2]
-    ), [60, 80])
+    ), [28, 28])
 
+    # Normalize data
     frame.L_channel = frame.L_channel / 50 - 1
     frame.AB_channels = frame.AB_channels / 110
 
@@ -115,7 +116,7 @@ def inputs(eval_data, data_dir, batch_size):
         filenames = [os.path.join(data_dir, filename) for filename in os.listdir(data_dir)]
         num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
     else:
-        filenames = [os.path.join(data_dir, 'data_test.bin')]
+        filenames = [os.path.join(data_dir, filename) for filename in os.listdir(data_dir)]
         num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
 
     for f in filenames:

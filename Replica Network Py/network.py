@@ -12,14 +12,16 @@ import network_input
 
 FLAGS = tf.app.flags.FLAGS
 
-BATCH_SIZE = 128
+BATCH_SIZE = 1
 DATA_DIR = './models'
 USE_FP16 = False
 
 # MOVING_AVERAGE_DECAY = 0.9999
 # NUM_EPOCHS_PER_DECAY = 350
 # LEARNING_RATE_DECAY_FACTOR = 0.1
-INITIAL_LEARNING_RATE = 0.00000000000001
+INITIAL_LEARNING_RATE = 0.000003
+WEIGHT_FACTOR = 20
+TRAINING = True
 
 TOWER_NAME = 'tower'
 
@@ -35,71 +37,70 @@ def conv(x, k, b, stride=1):
     x = tf.nn.bias_add(x, b)
     return tf.nn.relu(x)
 
-
 def network(x):
     # x = [batch_size, width, height, channels]
     weights = {
-        'conv1_1': tf.Variable(tf.random_normal([3, 3, 1, 64])),
-        'conv1_2': tf.Variable(tf.random_normal([3, 3, 64, 64])),
+        'conv1_1': tf.Variable(tf.random_normal([3, 3, 1, 64]) / WEIGHT_FACTOR),
+        'conv1_2': tf.Variable(tf.random_normal([3, 3, 64, 64]) / WEIGHT_FACTOR),
 
-        'conv2_1': tf.Variable(tf.random_normal([3, 3, 64, 128])),
-        'conv2_2': tf.Variable(tf.random_normal([3, 3, 128, 128])),
+        'conv2_1': tf.Variable(tf.random_normal([3, 3, 64, 128]) / WEIGHT_FACTOR),
+        'conv2_2': tf.Variable(tf.random_normal([3, 3, 128, 128]) / WEIGHT_FACTOR),
 
-        'conv3_1': tf.Variable(tf.random_normal([3, 3, 128, 256])),
-        'conv3_2': tf.Variable(tf.random_normal([3, 3, 256, 256])),
-        'conv3_3': tf.Variable(tf.random_normal([3, 3, 256, 256])),
+        'conv3_1': tf.Variable(tf.random_normal([3, 3, 128, 256]) / WEIGHT_FACTOR),
+        'conv3_2': tf.Variable(tf.random_normal([3, 3, 256, 256]) / WEIGHT_FACTOR),
+        'conv3_3': tf.Variable(tf.random_normal([3, 3, 256, 256]) / WEIGHT_FACTOR),
 
-        'conv4_1': tf.Variable(tf.random_normal([3, 3, 256, 512])),
-        'conv4_2': tf.Variable(tf.random_normal([3, 3, 512, 512])),
-        'conv4_3': tf.Variable(tf.random_normal([3, 3, 512, 512])),
+        'conv4_1': tf.Variable(tf.random_normal([3, 3, 256, 512]) / WEIGHT_FACTOR),
+        'conv4_2': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
+        'conv4_3': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
 
-        'conv5_1': tf.Variable(tf.random_normal([3, 3, 512, 512])),
-        'conv5_2': tf.Variable(tf.random_normal([3, 3, 512, 512])),
-        'conv5_3': tf.Variable(tf.random_normal([3, 3, 512, 512])),
+        'conv5_1': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
+        'conv5_2': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
+        'conv5_3': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
 
-        'conv6_1': tf.Variable(tf.random_normal([3, 3, 512, 512])),
-        'conv6_2': tf.Variable(tf.random_normal([3, 3, 512, 512])),
-        'conv6_3': tf.Variable(tf.random_normal([3, 3, 512, 512])),
+        'conv6_1': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
+        'conv6_2': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
+        'conv6_3': tf.Variable(tf.random_normal([3, 3, 512, 512]) / WEIGHT_FACTOR),
 
-        'conv7_1': tf.Variable(tf.random_normal([3, 3, 512, 256])),
-        'conv7_2': tf.Variable(tf.random_normal([3, 3, 256, 256])),
-        'conv7_3': tf.Variable(tf.random_normal([3, 3, 256, 256])),
+        'conv7_1': tf.Variable(tf.random_normal([3, 3, 512, 256]) / WEIGHT_FACTOR),
+        'conv7_2': tf.Variable(tf.random_normal([3, 3, 256, 256]) / WEIGHT_FACTOR),
+        'conv7_3': tf.Variable(tf.random_normal([3, 3, 256, 256]) / WEIGHT_FACTOR),
 
-        'conv8_1': tf.Variable(tf.random_normal([3, 3, 256, 128])),
-        'conv8_2': tf.Variable(tf.random_normal([3, 3, 128, 128])),
-        'conv8_3': tf.Variable(tf.random_normal([3, 3, 128, 2]))
+        'conv8_1': tf.Variable(tf.random_normal([3, 3, 256, 128]) / WEIGHT_FACTOR),
+        'conv8_2': tf.Variable(tf.random_normal([3, 3, 128, 128]) / WEIGHT_FACTOR),
+        'conv8_3': tf.Variable(tf.random_normal([3, 3, 128, 2]) / WEIGHT_FACTOR)
     }
 
     biases = {
-        'conv1_1': tf.Variable(tf.random_normal([64])),
-        'conv1_2': tf.Variable(tf.random_normal([64])),
+        'conv1_1': tf.Variable(tf.random_normal([64]) / WEIGHT_FACTOR),
+        'conv1_2': tf.Variable(tf.random_normal([64]) / WEIGHT_FACTOR),
 
-        'conv2_1': tf.Variable(tf.random_normal([128])),
-        'conv2_2': tf.Variable(tf.random_normal([128])),
+        'conv2_1': tf.Variable(tf.random_normal([128]) / WEIGHT_FACTOR),
+        'conv2_2': tf.Variable(tf.random_normal([128]) / WEIGHT_FACTOR),
 
-        'conv3_1': tf.Variable(tf.random_normal([256])),
-        'conv3_2': tf.Variable(tf.random_normal([256])),
-        'conv3_3': tf.Variable(tf.random_normal([256])),
+        'conv3_1': tf.Variable(tf.random_normal([256]) / WEIGHT_FACTOR),
+        'conv3_2': tf.Variable(tf.random_normal([256]) / WEIGHT_FACTOR),
+        'conv3_3': tf.Variable(tf.random_normal([256]) / WEIGHT_FACTOR),
 
-        'conv4_1': tf.Variable(tf.random_normal([512])),
-        'conv4_2': tf.Variable(tf.random_normal([512])),
-        'conv4_3': tf.Variable(tf.random_normal([512])),
+        'conv4_1': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
+        'conv4_2': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
+        'conv4_3': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
 
-        'conv5_1': tf.Variable(tf.random_normal([512])),
-        'conv5_2': tf.Variable(tf.random_normal([512])),
-        'conv5_3': tf.Variable(tf.random_normal([512])),
+        'conv5_1': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
+        'conv5_2': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
+        'conv5_3': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
 
-        'conv6_1': tf.Variable(tf.random_normal([512])),
-        'conv6_2': tf.Variable(tf.random_normal([512])),
-        'conv6_3': tf.Variable(tf.random_normal([512])),
+        'conv6_1': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
+        'conv6_2': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
+        'conv6_3': tf.Variable(tf.random_normal([512]) / WEIGHT_FACTOR),
 
-        'conv7_1': tf.Variable(tf.random_normal([256])),
-        'conv7_2': tf.Variable(tf.random_normal([256])),
-        'conv7_3': tf.Variable(tf.random_normal([256])),
+        'conv7_1': tf.Variable(tf.random_normal([256]) / WEIGHT_FACTOR),
+        'conv7_2': tf.Variable(tf.random_normal([256]) / WEIGHT_FACTOR),
+        'conv7_3': tf.Variable(tf.random_normal([256]) / WEIGHT_FACTOR),
 
-        'conv8_1': tf.Variable(tf.random_normal([128])),
-        'conv8_2': tf.Variable(tf.random_normal([128])),
-        'conv8_3': tf.Variable(tf.random_normal([2]))
+        'conv8_1': tf.Variable(tf.random_normal([128]) / WEIGHT_FACTOR),
+        'conv8_2': tf.Variable(tf.random_normal([128]) / WEIGHT_FACTOR),
+        'conv8_3': tf.Variable(tf.random_normal([2]) / WEIGHT_FACTOR)
     }
 
     # x = tf.reshape(x, shape=[-1, f_in_x, f_in_y, 1])
@@ -138,4 +139,4 @@ def network(x):
 
 
 def input():
-    return network_input.inputs(False, './resources', 2)
+    return network_input.inputs(False, './resources', BATCH_SIZE)
