@@ -16,14 +16,9 @@ def train():
         global_step = tf.contrib.framework.get_or_create_global_step()
 
         with tf.device('/cpu:0'):
-            # IMPLEMENT INPUT METHOD IN NETWORK
             L_channel, AB_channels = network.input()
 
         logits = network.network(L_channel)
-        # loss_op = tf.reduce_mean(
-            # tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=AB_channels)
-        # )
-
         loss_op = tf.reduce_sum(tf.pow(logits - AB_channels, 2))/(2*28*28)
 
         optimiser = tf.train.AdamOptimizer(learning_rate=network.INITIAL_LEARNING_RATE)
@@ -53,12 +48,13 @@ def train():
 
         with tf.train.MonitoredTrainingSession(
             checkpoint_dir=TRAIN_DIR,
-            hooks=[tf.train.StopAtStepHook(last_step=MAX_STEP),
+            save_checkpoint_secs=60,
+            hooks=[tf.train.StopAtStepHook(last_step=300000),
                    tf.train.NanTensorHook(loss_op),
                    _LoggerHook()],
-            config=tf.ConfigProto(
-                log_device_placement=LOG_DEV_PLACEMENT)) as mon_sess:
-                    while not mon_sess.should_stop():
-                        mon_sess.run(train_op)
+            config=tf.ConfigProto(log_device_placement=LOG_DEV_PLACEMENT)
+        ) as mon_sess:
+            while not mon_sess.should_stop():
+                mon_sess.run(train_op)
 
 train()
