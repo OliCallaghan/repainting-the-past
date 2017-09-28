@@ -59,4 +59,6 @@ typings/
 
 Replica\ Network\ Py/bin
 Replica\ Network\ Py/resources
-Replica\ Network\ Py/tran_dir
+Replica\ Network\ Py/train_dir
+
+*.pyc

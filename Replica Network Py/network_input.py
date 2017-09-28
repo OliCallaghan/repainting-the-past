@@ -1,8 +1,6 @@
 from __future__ import division, print_function, absolute_import
 import tensorflow as tf
-from skimage import color
 import os
-from skimage import color
 
 data_dir = "./bin"
 
