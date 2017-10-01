@@ -9,8 +9,8 @@ data_dir = "./bin"
 f_in_x = 224
 f_in_y = 224
 
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 2500
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 2500
 
 
 def read_frame(filename_queue):
@@ -30,21 +30,26 @@ def read_frame(filename_queue):
 
     _, jpeg_data = image_reader.read(filename_queue)
     rgb_data = tf.image.decode_jpeg(jpeg_data, 3)
+    l_data = tf.image.rgb_to_grayscale(rgb_data)
 
-    lab_data = rgb_to_lab(tf.cast(rgb_data, tf.float32))
+    #lab_data = rgb_to_lab(tf.divide(tf.cast(rgb_data, tf.float32), 255))
+    #lab_data = tf.divide(tf.cast(rgb_data, tf.float32), 255)
     # Extract L channel
-    frame.L_channel = tf.slice(
-        lab_data, [0, 0, 0], [frame.height, frame.width, 1]
-    )
+    #frame.L_channel = tf.slice(
+    #    lab_data, [0, 0, 0], [frame.height, frame.width, 1]
+    #)
+    frame.L_channel = tf.reshape(tf.divide(tf.cast(l_data, tf.float32), 255), [frame.height,frame.width,1])
 
     # Extract AB channels
-    frame.AB_channels = tf.image.resize_images(tf.slice(
-        lab_data, [0, 0, 1], [frame.height, frame.width, 2]
-    ), [28, 28])
+    #frame.AB_channels = tf.image.resize_images(tf.slice(
+    #    lab_data, [0, 0, 1], [frame.height, frame.width, 2]
+    #), [28, 28])
+
+    frame.AB_channels = tf.image.resize_images(tf.divide(tf.cast(rgb_data, tf.float32), 255), [56,56])
 
     # Normalize data
-    frame.L_channel = frame.L_channel / 50 - 1
-    frame.AB_channels = frame.AB_channels / 110
+    #frame.L_channel = tf.divide(frame.L_channel, 100)
+    #frame.AB_channels = tf.divide(frame.AB_channels, 127) - 1
 
     return (frame.L_channel, frame.AB_channels)
 
@@ -57,7 +62,7 @@ def rgb_to_lab(srgb):
         with tf.name_scope("srgb_to_xyz"):
             linear_mask = tf.cast(srgb_pixels <= 0.04045, dtype=tf.float32)
             exponential_mask = tf.cast(srgb_pixels > 0.04045, dtype=tf.float32)
-            rgb_pixels = (srgb_pixels / 12.92 * linear_mask) + (((srgb_pixels + 0.055) / 1.055) ** 2.4) * exponential_mask
+            rgb_pixels = ((srgb_pixels / 12.92 * linear_mask) + (((srgb_pixels + 0.055) / 1.055) ** 2.4) * exponential_mask) * 100
             rgb_to_xyz = tf.constant([
                 #    X        Y          Z
                 [0.412453, 0.212671, 0.019334], # R

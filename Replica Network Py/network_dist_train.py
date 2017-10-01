@@ -11,13 +11,12 @@ import tensorflow as tf
 import network
 
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 1000
-BATCH_SIZE = 1
-NUM_GPUS = 1
+NUM_GPUS = 2
 
 LOG_FREQ = 5
 LOG_DEV_PLACEMENT = True
 TRAIN_DIR = 'train_dir'
-MAX_STEP = 100
+MAX_STEP = 47000
 
 
 def tower_loss(scope, L_channel, AB_channels):
@@ -26,7 +25,7 @@ def tower_loss(scope, L_channel, AB_channels):
     _ = network.loss(logits, AB_channels)
 
     losses = tf.get_collection('losses', scope)
-    total_loss = tf.reduce_mean(losses, name='total_loss')
+    total_loss = tf.reduce_sum(losses, name='total_loss')
 
     for l in losses + [total_loss]:
         # Remove 'tower_[0-9]/' from the name in case this is a multi-GPU training
@@ -84,7 +83,7 @@ def train():
 
     # Calculate the learning rate schedule.
     num_batches_per_epoch = (NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN /
-                             BATCH_SIZE)
+                             network.BATCH_SIZE)
     decay_steps = int(num_batches_per_epoch * network.NUM_EPOCHS_PER_DECAY)
 
     # Decay the learning rate exponentially based on the number of steps.
@@ -170,6 +169,19 @@ def train():
         log_device_placement=LOG_DEV_PLACEMENT))
     sess.run(init)
 
+    ckpt = tf.train.get_checkpoint_state(TRAIN_DIR)
+    if ckpt and ckpt.model_checkpoint_path:
+        # Restores from checkpoint
+        saver.restore(sess, ckpt.model_checkpoint_path)
+        # Assuming model_checkpoint_path looks something like:
+        #   /my-favorite-path/cifar10_train/model.ckpt-0,
+        # extract global_step from it.
+        global_step = int(ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1])
+        print("GLOBAL STEP = " + str(global_step))
+    else:
+        global_step = int(0)
+        print('No checkpoint file found')
+
     # Start the queue runners.
     tf.train.start_queue_runners(sess=sess)
 
@@ -177,6 +189,7 @@ def train():
 
     for step in xrange(MAX_STEP):
       start_time = time.time()
+      # print(L_channel.eval(session=sess))
       _, loss_value = sess.run([train_op, loss])
       duration = time.time() - start_time
 
@@ -187,21 +200,21 @@ def train():
         examples_per_sec = num_examples_per_step / duration
         sec_per_batch = duration / NUM_GPUS
 
-        format_str = ('%s: step %d, loss = %.2f (%.1f examples/sec; %.3f '
+        format_str = ('%s: step %d, loss = %.8f (%.1f examples/sec; %.3f '
                       'sec/batch)')
-        print (format_str % (datetime.now(), step, loss_value,
+        print (format_str % (datetime.now(), global_step + step, loss_value,
                              examples_per_sec, sec_per_batch))
       else:
-        print (str(datetime.now()) + ': step ' + str(step) + ' loss = ' + str(loss_value))
+        print (str(datetime.now()) + ': step ' + str(global_step + step) + ', loss = ' + str(loss_value))
 
       if step % 100 == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
 
       # Save the model checkpoint periodically.
-      if step % 30 == 0 or (step + 1) == MAX_STEP:
+      if step % 400 == 0 or (step + 1) == MAX_STEP:
         checkpoint_path = os.path.join(TRAIN_DIR, 'model.ckpt')
-        saver.save(sess, checkpoint_path, global_step=step)
+        saver.save(sess, checkpoint_path, global_step=global_step + step)
 
 
 train()
