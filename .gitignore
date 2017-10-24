@@ -57,3 +57,5 @@ typings/
 # dotenv environment variables file
 .env
 
+Replica\ Network\ Py/out
+Replica\ Network\ Py/resources
